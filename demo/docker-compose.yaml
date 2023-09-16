@@ -11,7 +11,7 @@ services:
       - influxdb
 
   influxdb:
-    image: influxdb:1.8.3
+    image: influxdb:2.7
     restart: always
     volumes:
       - influxdb:/var/lib/influxdb
@@ -24,16 +24,17 @@ services:
       - INFLUXDB_DB="speedtest"
 
   speedtest:
-    image: robinmanuelthiel/speedtest:latest
+    image: chnoeli/speedtest:latest
     restart: always
     environment:
       - LOOP=true
       - LOOP_DELAY=1800
       - DB_SAVE=true
       - DB_HOST=http://influxdb:8086
+      - DB_API_TOKEN=[token]
+      - DB_ORG=f8c2b777e6ec9891
       - DB_NAME=speedtest
-      - DB_USERNAME=admin
-      - DB_PASSWORD=password
+      - HOST=localhost
     privileged: true # Needed for 'sleep' in the loop
     depends_on:
       - influxdb

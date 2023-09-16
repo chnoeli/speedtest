@@ -5,7 +5,7 @@
 Check your internet bandwidth using the [Speedtest CLI](https://www.speedtest.net/apps/cli) from a Docker container. You can configure the tool to run periodically and save the results to an InfluxDB for visualization or long-term records.
 
 ```bash
-docker run --rm robinmanuelthiel/speedtest:latest
+docker run --rm chnoeli/speedtest:latest
 ```
 
 The result will then look like this:
@@ -25,9 +25,10 @@ Your ping is 6.223 ms.
 | `LOOP_DELAY`         | `60`                    | Delay in seconds between the runs |
 | `DB_SAVE`            | `false`                 | Save values to InfluxDB           |
 | `DB_HOST`            | `http://localhost:8086` | InfluxDB Hostname                 |
-| `DB_NAME`            | `speedtest`             | InfluxDB Database name            |
-| `DB_USERNAME`        | `admin`                 | InfluxDB Username                 |
-| `DB_PASSWORD`        | `password`              | InfluxDB Password                 |
+| `DB_ORG`             | `orgid`                 | InfluxDB Org id or org name       |
+| `DB_BUCKET`          | `bucket`                | InfluxDB bucket name              |
+| `DB_API_TOKEN`       | `api-token`             | InfluxDB Token                    |
+| `HOST`               | `host`                  | Hostname to tag Influx data       |
 
 ## Grafana and InfluxDB
 
@@ -49,7 +50,7 @@ services:
       - influxdb
 
   influxdb:
-    image: influxdb:1.8.3
+    image: influxdb:2.7
     restart: always
     volumes:
       - influxdb:/var/lib/influxdb
@@ -62,16 +63,17 @@ services:
       - INFLUXDB_DB="speedtest"
 
   speedtest:
-    image: robinmanuelthiel/speedtest:latest
+    image: chnoeli/speedtest:latest
     restart: always
     environment:
       - LOOP=true
       - LOOP_DELAY=1800
       - DB_SAVE=true
       - DB_HOST=http://influxdb:8086
+      - DB_API_TOKEN=[token]
+      - DB_ORG=f8c2b777e6ec9891
       - DB_NAME=speedtest
-      - DB_USERNAME=admin
-      - DB_PASSWORD=password
+      - HOST=localhost
     privileged: true # Needed for 'sleep' in the loop
     depends_on:
       - influxdb
